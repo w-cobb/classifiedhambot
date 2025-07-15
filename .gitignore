@@ -1,0 +1,8 @@
+# VS Code stuff
+venv
+
+# NEVER push the secrets!
+.env
+
+# Don't push script output
+*.log
