@@ -3,7 +3,6 @@
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-import asyncio
 import logging
 import os
 
@@ -11,14 +10,7 @@ import os
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 
-# Used to lock access to the database to make sure each run of the search process 
-# has the most up to date tracker list
-# dblock = asyncio.Lock()
-
 # Connect to database
-
-# Queued commands count
-queued_cmds = 0
 
 # Set up logging
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
@@ -57,7 +49,8 @@ async def addtracker(interaction: discord.Interaction, key: str):
     # Do some database stuff here
     
     # Print a message to chat or send through DM?
-    await interaction.response.send_message(f"Added a tracker for \"{key}\", {interaction.user.mention}")
+    await interaction.user.send("This is a DM")
+    # await interaction.response.send_message(f"Added a tracker for \"{key}\", {interaction.user.mention}")
     
 # Remove Alert
 @bot.tree.command(name="deltracker", description="Delete a tracker.", guild=GUILD_ID)

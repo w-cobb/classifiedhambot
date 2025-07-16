@@ -9,4 +9,4 @@ RUN pip3 install -r requirements.txt
 
 COPY . /usr/src/bot
 
-CMD ["python3","-u", "main.py"]
+CMD ["python3","-u", "bot.py"]

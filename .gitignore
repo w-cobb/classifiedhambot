@@ -1,5 +1,8 @@
 # VS Code stuff
-venv
+.venv
+
+# Python stuff
+__pycache__
 
 # NEVER push the secrets!
 .env
