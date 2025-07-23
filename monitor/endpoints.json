@@ -1,0 +1,18 @@
+{
+    "sites": {
+        "hamestate": {
+            "baseurl": "https://www.hamestate.com/product-category/ham_equipment/",
+            "categories": ["amps","hf_antennas","antennas-vhf-uhf","antennas-parts","tuners",
+            "audio-video","manuals-and-books","cables_prep-tools","cameras-optics","portable",
+            "gps-navigation","computers-accessories","keys-keyers","dummyloads-filters",
+            "speakers","hardware_rope","flea_market","grounding_surge","headphones",
+            "interfaces-modems","test-gear","microphones_speakers","parts-components",
+            "power-supplies","accessories","hf_rigs","vhf_uhf_rigs","vhf_uhf_rigs_portable",
+            "software","reveivers","antenna_rotators","switches_controllers","tech-specials",
+            "tools","towers","tubes","collins","vintage-parts"]
+        },
+        "qth": {
+            "baseurl": "https://swap.qth.com/all.php"
+        }
+    }
+}
