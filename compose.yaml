@@ -1,0 +1,7 @@
+services:
+  bot:
+    build: bot/.
+    image: classifiedhambot
+  monitor:
+    build: monitor/.
+    image: monitor
