@@ -7,6 +7,7 @@ COPY requirements.txt /usr/src/bot
 
 RUN pip3 install -r requirements.txt
 
-COPY . /usr/src/bot
+COPY ./bot /usr/src/bot
+COPY ../tools /usr/src/bot/
 
 CMD ["python3","-u", "bot.py"]

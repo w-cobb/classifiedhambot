@@ -1,6 +1,8 @@
 services:
   bot:
-    build: bot/.
+    build: 
+      context: .
+      dockerfile: ./bot/Dockerfile
     image: classifiedhambot
   monitor:
     build: monitor/.
