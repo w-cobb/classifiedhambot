@@ -12,7 +12,8 @@
             "tools","towers","tubes","collins","vintage-parts"]
         },
         "qth": {
-            "baseurl": "https://swap.qth.com/all.php"
+            "baseurl": "https://swap.qth.com/all.php",
+            "paginator": "?page="
         }
     }
 }
