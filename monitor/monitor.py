@@ -45,8 +45,10 @@ def get_new_listings_qth():
     
     new_listings = []
     
+    print("Printing out all listing IDs")
     for item in listings:
-        print(item.find("font").text.strip())
+        if "Listing #" in item.find("font").text.strip(): 
+            print(item.find("font").text.strip())
 
     for product in products:
         print(product.text.strip().split(" - "))
