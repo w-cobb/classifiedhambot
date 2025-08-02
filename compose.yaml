@@ -9,3 +9,8 @@ services:
       context: .
       dockerfile: ./monitor/Dockerfile
     image: monitor
+  api:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    image: api

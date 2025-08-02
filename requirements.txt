@@ -1,4 +1,6 @@
 discord.py
 requests
+fastapi[standard]
+pydantic
 python-dotenv
 beautifulsoup4
