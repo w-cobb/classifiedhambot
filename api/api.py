@@ -1,4 +1,20 @@
 from fastapi import FastAPI
+from dotenv import load_dotenv
+import psycopg
+import os
+
+load_dotenv()
+user = os.getenv("USER")
+password = os.getenv("PASSWORD")
+dbname = os.getenv("DBNAME")
+
+conn_string = f"dbname={dbname} user={user} password={password} host=localhost"
+
+with psycopg.connect(conn_string) as conn:
+    print("Connected")
+    with conn.cursor() as cur:
+        cur.execute("select * from \"bot schema\".trackers")
+        print(cur.fetchall())
 
 app = FastAPI()
 
