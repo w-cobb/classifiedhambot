@@ -7,7 +7,7 @@ COPY requirements.txt /usr/src/api
 
 RUN pip3 install -r requirements.txt
 
-COPY ./bot /usr/src/api
+COPY ./api /usr/src/api
 COPY ./tools /usr/src/api
 
-CMD ["fastapi", "dev", "api.py"]
+CMD ["fastapi", "run", "api.py"]

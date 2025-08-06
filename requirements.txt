@@ -1,6 +1,7 @@
+beautifulsoup4
 discord.py
-requests
 fastapi[standard]
+psycopg
 pydantic
 python-dotenv
-beautifulsoup4
+requests
