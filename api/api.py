@@ -5,11 +5,13 @@ import os
 
 load_dotenv()
 user = os.getenv("USER")
-password = os.getenv("PASSWORD")
+password = os.getenv("DBPASSWORD")
 dbname = os.getenv("DBNAME")
-hostname = os.getenv("HOSTNAME")
+dbhost = os.getenv("DBHOST")
+dbport = os.getenv("DBPORT")
 
-conn_string = f"dbname={dbname} user={user} password={password} host={hostname}"
+print(f'Attempting to connect to host: {dbhost}')
+conn_string = f"dbname={dbname} user={user} password={password} host={dbhost} port={dbport}"
 
 with psycopg.connect(conn_string) as conn:
     print("Connected")

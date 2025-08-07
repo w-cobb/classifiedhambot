@@ -6,6 +6,7 @@ __pycache__
 
 # NEVER push the secrets!
 .env
+secrets
 
 # Don't push script output
 *.log

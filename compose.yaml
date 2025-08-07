@@ -13,4 +13,28 @@ services:
     build:
       context: .
       dockerfile: ./api/Dockerfile
+    depends_on:
+      - db
+    restart: always
     image: api
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    ports:
+      - 5431:5432
+    volumes:
+      - pgdata:/var/lib/pgsql/data
+    secrets:
+      - db_user
+      - db_password
+  
+secrets:
+  db_user:
+    file: ./secrets/db_user.txt
+  db_password:
+    file: ./secrets/db_password.txt
+
+volumes:
+  pgdata:
