@@ -16,6 +16,8 @@ services:
     depends_on:
       - db
     restart: always
+    ports:
+      - 8000:8000
     image: api
   db:
     image: postgres
@@ -25,6 +27,7 @@ services:
     ports:
       - 5431:5432
     volumes:
+      - ./init:/docker-entrypoint-initdb.d
       - pgdata:/var/lib/pgsql/data
     secrets:
       - db_user
