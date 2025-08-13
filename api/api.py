@@ -72,7 +72,7 @@ async def del_tracker(response: Response, uname: str | None = None, id: int | No
                 return {'message': f"""You don\'t have any trackers with id = {id}. 
                         Please use /listtrackers to see the trackers you currently have, and enter the id
                         of the one you want to delete."""}
-        elif prune == true and age >= 10:
+        elif prune == True and age >= 10:
             await cur.execute('delete from trackers where to_timestamp(created_at) < now() - interval \'%s days\'', (age,))
             return {'message': f'Successfully pruned {cur.rowcount} trackers'}
         else:
@@ -171,7 +171,7 @@ async def del_alert(response: Response, id: int | None = None, prune: bool | Non
                 response.status_code = status.HTTP_404_NOT_FOUND
                 return {'message': f"No alert with id {id} found."}
         elif prune == True and age != None and age >= 10:
-            cur.execute('delete from alerts where to_timestamp(created_at) < now() - interval \"%s days\"', (age,))
+            cur.execute('delete from alerts where to_timestamp(created_at) < now() - interval \"%s days\"', (age))
             return {'message': f'{cur.rowcount} alerts deleted',}
         else:
             response.status_code = status.HTTP_400_BAD_REQUEST
