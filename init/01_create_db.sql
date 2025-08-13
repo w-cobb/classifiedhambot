@@ -25,5 +25,5 @@ create table alerts (
     listing_id  int not null,
     username    varchar not null,
     triggered   boolean default false,
-    created_at timestamptz default now()
+    created_at  timestamptz default now()
 );
