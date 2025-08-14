@@ -27,3 +27,12 @@ create table alerts (
     triggered   boolean default false,
     created_at  timestamptz default now()
 );
+
+insert into trackers (username, item_name) values 
+('testuser1', 'test_item_1'),
+('testuser1', 'test_item_2'),
+('testuser2', 'test_item_3');
+
+insert into listings (item_name, item_url) values 
+('test_item_1', 'test_item_1_url'),
+('test_item_2', 'test_item_2_url');

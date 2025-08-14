@@ -5,7 +5,7 @@ import logging
 import os
 
 load_dotenv()
-user = os.getenv("USER")
+user = os.getenv("DBUSER")
 password = os.getenv("DBPASSWORD")
 dbname = os.getenv("DBNAME")
 dbhost = os.getenv("DBHOST")
@@ -69,9 +69,7 @@ async def del_tracker(response: Response, uname: str | None = None, id: int | No
                 return {'message': f"Successfully deleted tracker {id}"}
             else:
                 response.status_code = status.HTTP_404_NOT_FOUND
-                return {'message': f"""You don\'t have any trackers with id = {id}. 
-                        Please use /listtrackers to see the trackers you currently have, and enter the id
-                        of the one you want to delete."""}
+                return {'message': 'Tracker not found'}
         elif prune == True and age >= 10:
             await cur.execute('delete from trackers where to_timestamp(created_at) < now() - interval \'%s days\'', (age,))
             return {'message': f'Successfully pruned {cur.rowcount} trackers'}
