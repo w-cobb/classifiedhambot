@@ -51,9 +51,10 @@ async def get_trackers(uname: str | None = None, conn = Depends(get_db_conn)):
 @app.post('/trackers', status_code=status.HTTP_201_CREATED)
 async def add_tracker(uname: str, iname: str, response: Response, conn = Depends(get_db_conn)):
     async with conn.cursor() as cur:
-        await cur.execute("insert into trackers (username, item_name) values (%s, %s) on conflict do nothing", (uname, iname))
-        if cur.rowcount == 1:
-            return {'message': "Successfully added new tracker."}
+        await cur.execute('select 1 from trackers where username = %s and lower(item_name) = %s', (uname, iname.lower()))
+        result = await cur.fetchall()
+        if len(result) == 0:
+            await cur.execute("insert into trackers (username, item_name) values (%s, %s)", (uname, iname))
         else:
             response.status_code = status.HTTP_409_CONFLICT
             return {'message': "A tracker already exists for that item."}
