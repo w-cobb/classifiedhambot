@@ -95,12 +95,13 @@ async def get_listings(conn = Depends(get_db_conn)):
 @app.post('/listings', status_code=status.HTTP_201_CREATED)
 async def add_listing(iname: str, iurl: str, response: Response, conn = Depends(get_db_conn)):
     async with conn.cursor() as cur:
-        await cur.execute('insert into listings (item_name, item_url) values (%s, %s) on conflict do nothing', (iname, iurl))
-        if cur.rowcount == 1:
-            return {'message': f"Successfully added listing for {iname}."}
+        await cur.execute('select 1 from listings where item_url = %s and lower(item_name) = %s', (iurl, iname.lower()))
+        result = await cur.fetchall()
+        if len(result) == 0:
+            await cur.execute('insert into listings (item_name, item_url) values (%s, %s) on conflict do nothing', (iname, iurl))
         else:
-            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-            return {'message': 'Something went wrong when adding the listing.'}
+            response.status_code = status.HTTP_409_CONFLICT
+            return {'message': 'Listing already exists for this item'}
     
 # Delete a listing
 @app.delete('/listings/', status_code=status.HTTP_200_OK)
@@ -140,12 +141,18 @@ async def get_alerts(triggered: bool | None = None, conn = Depends(get_db_conn))
 @app.post('/alerts', status_code=status.HTTP_201_CREATED)
 async def add_alert(tid: int, lid: int, uname: str, response: Response, conn = Depends(get_db_conn)):
     async with conn.cursor() as cur:
-        if tid >= 0 and lid >= 0 and uname != '':
-            cur.execute('insert into alerts (tracker_id, listing_id, username) values (%s, %s, %s) on conflict do nothing', (tid, lid, uname))
-            return {'message': f'Alert successfully added for Tracker: {tid}, Listing: {lid}, Username: {uname}'}
+        await cur.execute('select 1 from alerts where tracker_id = %s and listing_id = %s', (tid, lid))
+        result = await cur.fetchall()
+        if len(result) == 0:
+            if tid >= 0 and lid >= 0 and uname != '':
+                cur.execute('insert into alerts (tracker_id, listing_id, username) values (%s, %s, %s) on conflict do nothing', (tid, lid, uname))
+                return {'message': f'Alert successfully added for Tracker: {tid}, Listing: {lid}, Username: {uname}'}
+            else:
+                response.status_code = status.HTTP_400_BAD_REQUEST
+                return {'message': 'Invalid request format'}
         else:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            return {'message': 'Invalid request format'}
+            response.status_code = status.HTTP_409_CONFLICT
+            return {'message': 'Alert already exists'}
 
 # Update an alert when triggered
 @app.put('/alerts', status_code=status.HTTP_200_OK)
