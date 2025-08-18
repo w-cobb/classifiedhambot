@@ -74,7 +74,7 @@ async def listtrackers(interaction: discord.Interaction):
     print(f'Listing all trackers for {interaction.user.name}')
     # Get all trackers for calling user
     response = requests.get(f'{API_URL}/trackers?uname={interaction.user.name}')
-    await interaction.response.send_message(f"Trackers for {interaction.user.mention}:\n" + '\n'.join(f'{x[0]}: {x[2]}' for x in response.json()))
+    await interaction.response.send_message(f"Trackers for {interaction.user.mention}:\n" + 'Id  |  Item Name\n' + '\n'.join(f'{x[0]}  |  {x[2]}' for x in response.json()))
     
 # Help?
 @bot.tree.command(name="trackerhelp", description="A test slash command", guild=GUILD_ID)
