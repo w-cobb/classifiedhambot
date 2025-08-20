@@ -1,7 +1,10 @@
-import json
-import logging
-import requests
 from bs4 import BeautifulSoup
+import logging
+import json
+import re
+import requests
+import time
+from urllib.parse import quote_plus
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -14,44 +17,63 @@ url = ""
 headers = {
     "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
 }
+API_URL = 'http://api:8000'
 
 # Read contents of JSON file
 scraping_data = None
-with open('monitor/endpoints.json', 'r') as file:
+with open('endpoints.json', 'r') as file:
     scraping_data = json.load(file)
 
 # Get new listings from QTH
+# URL Format: https://swap.qth.com/view_ad.php?counter=1739528
 def get_new_listings_qth():
-    url = scraping_data["sites"]["qth"]["baseurl"]
+    # url = scraping_data["sites"]["qth"]["baseurl"] + scraping_data["sites"]["qth"]["listings"]
+    url = 'https://swap.qth.com/all.php'
+    listings_to_add = []
+    
+    # Get listings from first 5 pages
+    for page in range(1,16):
+        if page != 1:
+            url = f'https://swap.qth.com/all.php?page={page}'
+        page = requests.get(url, headers=headers)
+        if page.status_code != 200:
+            # Ran into an issue, should probably log it
+            logger.error("QTH responded with status code {page.status_code}")
+            return
+        
+        # Page returned fine, soup it up
+        soup = BeautifulSoup(page.content, "html.parser")
 
-    page = requests.get(url, headers=headers)
-    
-    if page.status_code != 200:
-        # Ran into an issue, should probably log it
-        logger.error("QTH responded with status code {page.status_code}")
-        return
-    
-    # Page returned fine, soup it up
-    soup = BeautifulSoup(page.content, "html.parser")
+        # This is the place where all the listings are stored
+        container = soup.find("div", class_="qth-content-wrap")
+        
+        # To find the listing ID we need to look for the <i> tag
+        listings = container.find_all("i")
+        ids = []
+        for item in listings:
+            if "Listing #" in item.find("font").text.strip(): 
+                ids.append(item.find("font").text.strip())
 
-    # This is the place where all the listings are stored
-    container = soup.find("div", class_="qth-content-wrap")
-    
-    # Each listing has a <b> tagg with some text
-    products = container.find_all("b")
-    
-    # To find the listing ID we need to look for the <i> tag
-    listings = container.find_all("i")
-    
-    new_listings = []
-    
-    print("Printing out all listing IDs")
-    for item in listings:
-        if "Listing #" in item.find("font").text.strip(): 
-            print(item.find("font").text.strip())
+        # Each listing has a <b> tagg with some text
+        products = container.find_all("b")
+        
+        # Only use <b> tags that contain product info
+        filtered_products = [x for x in products if ' - ' in x.text]
+        
+        for i, p in zip(ids, filtered_products):
+            # Get listing number for URL
+            listing_num = i.split('-')[0].strip('Listing #')
+            item_name = re.sub(r"fs|\bfor\s+sale\b|:*","",p.text.strip().split(' - ', 1)[1], flags=re.IGNORECASE).strip()
+            listings_to_add.append([listing_num, item_name])
+        
+        time.sleep(1)
 
-    for product in products:
-        print(product.text.strip().split(" - "))
+    # Send them to the database
+    for listing in listings_to_add:
+        iurl = f'https://swap.qth.com/view_ad.php?counter={listing[0]}'
+        iname = listing[1]
+        print(iname, ' | ', iurl)
+        requests.post(f'{API_URL}/listings?iurl={iurl}&iname={quote_plus(iname)}')
 
 def get_new_listings_hamestate():
     
