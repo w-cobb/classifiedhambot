@@ -76,6 +76,45 @@ def get_new_listings_qth():
         requests.post(f'{API_URL}/listings?iurl={iurl}&iname={quote_plus(iname)}')
 
 def get_new_listings_hamestate():
+    base_url = 'https://www.hamestate.com/product-category/ham_equipment/'
+    
+    for category in scraping_data['sites']['hamestate']['categories']:
+        url = base_url + category
+        end_of_pages = False
+        page_num = 1
+        
+        # Go unto we reach the end of the pages
+        while not end_of_pages:
+            if page_num == 1:
+                page = requests.get(url+'?orderby=date', headers=headers)
+            else:
+                page = requests.get(url+f'/page/{page_num}/?orderby=date', headers=headers)
+            if page.status_code != 200:
+                logger.error("HamEstate responded with status code {page.status_code}")
+                
+            # The page responded fine
+            soup = BeautifulSoup(page.content, "html.parser")
+            
+            # We reached the end of the listings for this category
+            if soup.find_All("h1",class_='not-found-title'):
+                end_of_pages = True
+                break
+            
+            # Get all prodcts from the page
+            products = soup.find_all("li", class_='product')
+            
+            # Parse the products to get the url parameters for iurl and iname
+            for product in products:
+                name = product.find("h2").text
+                link = product.find("a")['href']
+                
+                # Send this listing to the db
+                requests.post(f'{API_URL}/listings?iurl={link}&iname={quote_plus(name)}')
+                
+            # Move on
+            page_num += 1
+            time.sleep(0.5)
+            
     
     # for product in products:
 #     name = product.find("h2").text
@@ -89,5 +128,5 @@ def get_new_listings_qrz():
 
 if __name__ == "__main__":
     # run code here
-    get_new_listings_qth()
+    get_new_listings_hamestate()
     
