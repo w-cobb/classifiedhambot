@@ -1,10 +1,18 @@
 from bs4 import BeautifulSoup
-import logging
+from dotenv import load_dotenv
+import email
+import imaplib
 import json
+import logging
+import os
 import re
 import requests
 import time
 from urllib.parse import quote_plus
+
+load_dotenv()
+email_address = os.getenv("EMAIL")
+email_pass = os.getenv("PASSWORD")
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -17,6 +25,7 @@ url = ""
 headers = {
     "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
 }
+
 API_URL = 'http://api:8000'
 
 # Read contents of JSON file
@@ -122,11 +131,46 @@ def get_new_listings_hamestate():
 #     print(name, link)
     pass
     
-
 def get_new_listings_qrz():
-    pass
+    new_listings = []
+    with imaplib.IMAP4_SSL('imap.gmail.com') as mail:
+        mail.login(email_address, email_pass)
+        mail.select('inbox')
+        status, messages = mail.search(None, 'UNSEEN')
+        email_ids = messages[0].split()
+        
+        if not email_ids:
+            logger.info('No unread emails found')
+            return
+        
+        for eid in email_ids:
+            status, message = mail.fetch(eid, '(RFC822)')
+            raw = message[0][1]
+            msg = email.message_from_bytes(raw)
+            iname = ''
+            iurl = ''
+            if ' - ' in msg.get('Subject'):
+                iname = msg.get('Subject').split(' - ')[1]
+            else:
+                continue
+            if msg.is_multipart():
+                for part in msg.walk():
+                    content_type = part.get_content_type()
+                    content_disposition = str(part.get_content_disposition())
+                    if content_type == 'text/plain' and 'attachment' not in content_disposition:
+                        body = part.get_payload(decode=True).decode(errors='ignore')
+                        lines = body.split('\n')
+                        for line in lines:
+                            if 'forums.qrz.com/index.php?threads' in line:
+                                iurl = line.replace('\r','')
+            if iname and iurl:
+                new_listings.append({'iname': iname, 'iurl': iurl})
+    if new_listings:
+        for listing in new_listings:
+            requests.post(f'{API_URL}/listings?iname={quote_plus(listing['iname'])}&iurl={listing['iurl']}')
+        
 
 if __name__ == "__main__":
     # run code here
-    get_new_listings_hamestate()
+    get_new_listings_qrz()
     
